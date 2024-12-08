@@ -12,12 +12,12 @@ def index():
 def calculate():
     try:
         # Get user inputs
-        petrol_price = float(request.form['petrol_price'])
-        mileage_min = float(request.form['mileage_min'])
-        mileage_max = float(request.form['mileage_max'])
-        distances = list(map(float, request.form['distances'].split(',')))
-        base_kms = float(request.form['base_kms'])
-        extra_rate = float(request.form['extra_rate'])
+        petrol_price = float(request.json['petrol_price'])
+        mileage_min = float(request.json['mileage_min'])
+        mileage_max = float(request.json['mileage_max'])
+        distances = list(map(float, request.json['distances'].split(',')))
+        base_kms = float(request.json['base_kms'])
+        extra_rate = float(request.json['extra_rate'])
 
         # Calculations
         total_kms = sum(distances)

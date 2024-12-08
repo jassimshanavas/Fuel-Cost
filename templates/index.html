@@ -121,46 +121,49 @@
             loading: false,
             
             async submitForm() {
-                // Reset previous results
-                this.results = null;
-                this.loading = true;
-                
-                try {
-                    // Prepare form data
-                    const formData = new FormData();
-                    Object.entries(this.formData).forEach(([key, value]) => {
-                        // Convert distances to string if it's an array
-                        const processedValue = key === 'distances' 
-                            ? (Array.isArray(value) ? value.join(',') : value)
-                            : value;
-                        formData.append(key, processedValue);
-                    });
+    // Reset previous results
+    this.results = null;
+    this.loading = true;
+    
+    try {
+        // Prepare request body
+        const body = JSON.stringify({
+            petrol_price: this.formData.petrol_price,
+            mileage_min: this.formData.mileage_min,
+            mileage_max: this.formData.mileage_max,
+            distances: this.formData.distances,
+            base_kms: this.formData.base_kms,
+            extra_rate: this.formData.extra_rate
+        });
 
-                    // Send request
-                    const response = await fetch('/calculate', {
-                        method: 'POST',
-                        body: formData
-                    });
+        // Send request
+        const response = await fetch('/calculate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: body
+        });
 
-                    // Parse response
-                    const data = await response.json();
-                    
-                    // Handle errors
-                    if (data.error) {
-                        throw new Error(data.error);
-                    }
+        // Parse response
+        const data = await response.json();
+        
+        // Handle errors
+        if (data.error) {
+            throw new Error(data.error);
+        }
 
-                    // Set results
-                    this.results = data;
-                } catch (error) {
-                    // Show error message
-                    alert(`Calculation Error: ${error.message}`);
-                    console.error(error);
-                } finally {
-                    // Always stop loading
-                    this.loading = false;
-                }
-            }
+        // Set results
+        this.results = data;
+    } catch (error) {
+        // Show error message
+        alert(`Calculation Error: ${error.message}`);
+        console.error(error);
+    } finally {
+        // Always stop loading
+        this.loading = false;
+    }
+}
         };
     }
 </script>
