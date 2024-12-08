@@ -21,7 +21,13 @@
     <script src="https://unpkg.com/feather-icons"></script>
 </head>
 <body 
-    x-data="app()" 
+    x-data="{ 
+        darkMode: localStorage.getItem('darkMode') === 'true',
+        toggleDarkMode() {
+            this.darkMode = !this.darkMode;
+            localStorage.setItem('darkMode', this.darkMode);
+        }
+    }" 
     :class="{'dark': darkMode}"
     class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-300 flex items-center justify-center p-4">
     
@@ -47,7 +53,6 @@
            class="text-gray-600 dark:text-white"></i>
     </button>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     <script>
         feather.replace();
     </script>
