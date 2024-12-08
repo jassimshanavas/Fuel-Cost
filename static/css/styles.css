@@ -1,0 +1,48 @@
+:root {
+    --bg-light: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    --bg-dark: linear-gradient(135deg, #232741 0%, #1f2233 100%);
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-attachment: fixed;
+}
+
+/* .glassmorphic-card {
+    background: rgba(241, 236, 236, 0.2);
+    border-radius: 16px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.125);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+} */
+.glassmorphic-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+button:hover {
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.5);
+}
+/* .dark .glassmorphic-card {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
+} */
+.dark .glassmorphic-card {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark .glassmorphic-card {
+    background: rgba(17, 24, 39, 0.4);
+    border-color: rgba(255, 255, 255, 0.075);
+}
+
+input {
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.5);
+}
+

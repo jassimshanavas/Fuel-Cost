@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div 
+    x-data="calculatorData()" 
+    class="p-6 space-y-6">
+    <form @submit.prevent="submitForm()" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Petrol Price (₹/Litre)</label>
+                <input 
+                    type="number" 
+                    x-model.number="formData.petrol_price"
+                    step="0.01" 
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Min Mileage (Km/Litre)</label>
+                <input 
+                    type="number" 
+                    x-model.number="formData.mileage_min"
+                    step="0.01" 
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Max Mileage (Km/Litre)</label>
+                <input 
+                    type="number" 
+                    x-model.number="formData.mileage_max"
+                    step="0.01" 
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Distances (comma-separated)</label>
+                <input 
+                    type="text" 
+                    x-model="formData.distances"
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Base Kilometers</label>
+                <input 
+                    type="number" 
+                    x-model.number="formData.base_kms"
+                    step="0.01" 
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+            
+            <div>
+                <label class="block mb-2 text-gray-700 dark:text-gray-200">Extra Rate (₹/Km)</label>
+                <input 
+                    type="number" 
+                    x-model.number="formData.extra_rate"
+                    step="0.01" 
+                    required
+                    class="w-full px-4 py-2 rounded-lg border border-gray-300/50 dark:border-gray-600/50 bg-white/60 dark:bg-gray-800/60 backdrop-blur-sm focus:ring-2 focus:ring-blue-500"
+                >
+            </div>
+        </div>
+
+        <button 
+            type="submit"
+            :disabled="loading"
+            class="w-full py-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg hover:from-blue-600 hover:to-purple-700 transition transform hover:scale-[1.02] disabled:opacity-50">
+            <span x-show="!loading">Calculate Fuel Cost</span>
+            <span x-show="loading">Calculating...</span>
+        </button>
+    </form>
+
+    <template x-if="results">
+        <div class="glassmorphic-card p-6 mt-6 space-y-4">
+            <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-4">Fuel Insights</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-white/30 dark:bg-gray-800/30 p-4 rounded-lg">
+                    <p class="text-gray-600 dark:text-gray-300">Total Kilometers</p>
+                    <p x-text="results.total_kms" class="text-xl font-bold text-blue-600"></p>
+                </div>
+                <div class="bg-white/30 dark:bg-gray-800/30 p-4 rounded-lg">
+                    <p class="text-gray-600 dark:text-gray-300">Extra Kilometers</p>
+                    <p x-text="results.extra_kms" class="text-xl font-bold text-blue-600"></p>
+                </div>
+                <div class="bg-white/30 dark:bg-gray-800/30 p-4 rounded-lg">
+                    <p class="text-gray-600 dark:text-gray-300">Max Litres</p>
+                    <p x-text="results.max_litres" class="text-xl font-bold text-blue-600"></p>
+                </div>
+                <div class="bg-white/30 dark:bg-gray-800/30 p-4 rounded-lg">
+                    <p class="text-gray-600 dark:text-gray-300">Total Price (Max)</p>
+                    <p x-text="results.max_total_price" class="text-xl font-bold text-blue-600"></p>
+                </div>
+            </div>
+        </div>
+    </template>
+</div>
+
+<script>
+    function calculatorData() {
+        return {
+            formData: {
+                petrol_price: null,
+                mileage_min: null,
+                mileage_max: null,
+                distances: '',
+                base_kms: null,
+                extra_rate: null
+            },
+            results: null,
+            loading: false,
+            
+            async submitForm() {
+                // Reset previous results
+                this.results = null;
+                this.loading = true;
+                
+                try {
+                    // Prepare form data
+                    const formData = new FormData();
+                    Object.entries(this.formData).forEach(([key, value]) => {
+                        // Convert distances to string if it's an array
+                        const processedValue = key === 'distances' 
+                            ? (Array.isArray(value) ? value.join(',') : value)
+                            : value;
+                        formData.append(key, processedValue);
+                    });
+
+                    // Send request
+                    const response = await fetch('/calculate', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    // Parse response
+                    const data = await response.json();
+                    
+                    // Handle errors
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+
+                    // Set results
+                    this.results = data;
+                } catch (error) {
+                    // Show error message
+                    alert(`Calculation Error: ${error.message}`);
+                    console.error(error);
+                } finally {
+                    // Always stop loading
+                    this.loading = false;
+                }
+            }
+        };
+    }
+</script>
+{% endblock %}
